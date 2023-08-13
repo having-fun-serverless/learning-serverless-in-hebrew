@@ -1,0 +1,165 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  mailing-list
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  JoinGroupFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: join_group/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref GroupsSubscribersTable
+      Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups/{group-id}
+            Method: post
+  CreateGroupFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: create_group/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref GroupsSubscribersTable
+      Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups
+            Method: post
+  ViewGroupsFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: view_groups/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref GroupsSubscribersTable
+      Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups
+            Method: get
+
+  SendPostFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: send_post/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          MESSAGES_BUCKET: !Ref Messages
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref Messages
+        - DynamoDBReadPolicy:
+            TableName: !Ref GroupsSubscribersTable
+      Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups/{group-id}/post
+            Method: post
+  SendEmailtFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: send_email/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Timeout: 60
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref Messages
+        - DynamoDBReadPolicy:
+            TableName: !Ref GroupsSubscribersTable
+        - SESCrudPolicy:
+            IdentityName: <verified email>
+      Environment:
+        Variables:
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+          VERIFIED_EMAIL: <verified email>
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt SendMessagesQueue.Arn
+            BatchSize: 5
+            
+  GroupsSubscribersTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: PK
+          KeyType: HASH 
+        - AttributeName: SK
+          KeyType: RANGE 
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  
+  Messages:
+    Type: AWS::S3::Bucket
+    Properties:
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Queue: !GetAtt SendMessagesQueue.Arn
+    
+  SendMessagesQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 360
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DLQ.Arn
+        maxReceiveCount: 5
+  DLQ:
+    Type: AWS::SQS::Queue
+  
+  SQSQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    DependsOn: SendMessagesQueue
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt SendMessagesQueue.Arn
+      Queues:
+        - !Ref SendMessagesQueue
+    
+Outputs:
+  ViewGroupsApi:
+    Description: "API Gateway endpoint URL for Prod stage for ViewGroupsFunction function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/groups/"
