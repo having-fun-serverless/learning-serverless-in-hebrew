@@ -19,5 +19,13 @@ def lambda_handler(event, context):
     item = {"PK":f"GROUP#{group_id}", "SK":f"METADATA#", "description": group_description, "name": group_name}
     table.put_item(Item=item)
     
-    return {"statusCode": 200, "body": json.dumps(item)}
+    return {
+        "statusCode": 200,
+        "headers": {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*", 
+            "Access-Control-Allow-Methods": "POST",
+        },
+        "body": json.dumps(item)
+    }
          
