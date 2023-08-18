@@ -164,8 +164,65 @@ Resources:
             Resource: !GetAtt SendMessagesQueue.Arn
       Queues:
         - !Ref SendMessagesQueue
+  
+  WebsiteS3Bucket:
+    Type: AWS::S3::Bucket
+  
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteS3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "cloudfront.amazonaws.com"
+            Action: "s3:GetObject"
+            Resource: !Sub 'arn:aws:s3:::${WebsiteS3Bucket}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+    
+    
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: mailing-list-OAC
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - WebsiteS3Bucket
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt WebsiteS3Bucket.DomainName
+            Id: mailing-list-hosting
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+        Enabled: "true"
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          TargetOriginId: mailing-list-hosting
+          ForwardedValues:
+            QueryString: "false"
+          ViewerProtocolPolicy: redirect-to-https
     
 Outputs:
   ViewGroupsApi:
     Description: "API Gateway endpoint URL for Prod stage for ViewGroupsFunction function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/groups/"
+  CloudFrontDist:
+    Value: !GetAtt CloudFrontDistribution.DomainName
+  WebsiteBucket:
+    Value: !Ref WebsiteS3Bucket

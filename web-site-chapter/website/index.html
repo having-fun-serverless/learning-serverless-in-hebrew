@@ -88,9 +88,10 @@
     </div>
     <script>
         var selectedGroupId = null;
+        var website = "https://zqikycpua2.execute-api.us-east-1.amazonaws.com"
 
         // Fetch groups from the backend API
-        $.getJSON("https://zqikycpua2.execute-api.us-east-1.amazonaws.com/Prod/groups", function(data) {
+        $.getJSON(`${website}/Prod/groups`, function(data) {
             $.each(data, function(key, group) {
                 $("#groups-table").append(`<tr>
                                             <td>${key + 1}</td>
@@ -112,7 +113,7 @@
             var email = $("#email-input").val();
             // Send API request with group ID and email
             $.ajax({
-              url: `https://zqikycpua2.execute-api.us-east-1.amazonaws.com/Prod/groups/${selectedGroupId}`,
+              url: `${website}/Prod/groups/${selectedGroupId}`,
               type: "POST",
               contentType: "application/json",
               data: JSON.stringify({ email: email }),
@@ -165,7 +166,7 @@ $("#add-group-button").click(function(e) {
 
     // Make the POST request
     $.ajax({
-        url: "https://zqikycpua2.execute-api.us-east-1.amazonaws.com/Prod/groups",
+        url: `${website}/Prod/groups`,
         type: "POST",
         headers: headers,
         data: JSON.stringify(data),
