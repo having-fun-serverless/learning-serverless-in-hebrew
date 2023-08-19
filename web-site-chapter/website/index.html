@@ -65,27 +65,6 @@
         <input type="text" id="email-input" placeholder="Enter your email">
         <button id="add-button">Add</button>
     </div>
-    <footer>
-        <div id="admin-link" style="text-align: center;">
-            <a href="#">admin</a>
-        </div>
-    </footer>
-    <div id="login-form" class="center-form" style="display: none;">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password">
-        <button id="login-button" type="submit">Login</button>
-    </div>
-   <div id="group-form" class="center-form" style="display: none;">
-        <form>
-            <label for="group-name">Group Name:</label>
-            <input type="text" id="group-name" name="group-name">
-            <label for="group-description">Group Description:</label>
-            <input type="text" id="group-description" name="group-description">
-            <button id="add-group-button">Add Group</button>
-        </form>
-    </div>
     <script>
         var selectedGroupId = null;
         var website = "https://zqikycpua2.execute-api.us-east-1.amazonaws.com"
@@ -124,62 +103,7 @@
               }
             });
         });
-        $("#admin-link").click(function(e) {
-            e.preventDefault();
-            $("#groups-table").hide();
-            $("#group-form").hide();
-            $("#login-form").show();
-        });
-        $("#login-button").click(function(e) {
-            e.preventDefault();
-            var username = $("#username-input").val();
-            var password = $("#password-input").val();
         
-            $("#login-form").hide();
-            $("#group-form").show();
-        
-            // Save the credentials to be used later
-            localStorage.setItem("username", username);
-            localStorage.setItem("password", password);
-        });
-
-$("#add-group-button").click(function(e) {
-    e.preventDefault();
-    var groupName = $("#group-name").val();
-    var groupDescription = $("#group-description").val();
-
-    // Retrieve saved credentials
-    var username = localStorage.getItem("username");
-    var password = localStorage.getItem("password");
-
-    // Create a basic authentication header
-    var headers = {
-        "Authorization": "Basic " + btoa(username + ":" + password),
-        "Content-Type": "application/json"
-    };
-
-    // Create the data object
-    var data = {
-        name: groupName,
-        description: groupDescription
-    };
-
-    // Make the POST request
-    $.ajax({
-        url: `${website}/Prod/groups`,
-        type: "POST",
-        headers: headers,
-        data: JSON.stringify(data),
-        success: function() {
-            alert("Group added successfully!");
-            $("#group-form").hide();
-        },
-        error: function() {
-            alert("Error adding group!");
-        }
-    });
-});
-
     </script>
 </body>
 </html>
