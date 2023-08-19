@@ -167,6 +167,30 @@ Resources:
   
   WebsiteS3Bucket:
     Type: AWS::S3::Bucket
+    
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - WebsiteS3Bucket
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt WebsiteS3Bucket.DomainName
+            Id: mailing-list-hosting
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+        Enabled: "true"
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          TargetOriginId: mailing-list-hosting
+          ForwardedValues:
+            QueryString: "false"
+          ViewerProtocolPolicy: redirect-to-https
   
   S3BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -194,29 +218,7 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
   
-  CloudFrontDistribution:
-    Type: AWS::CloudFront::Distribution
-    DependsOn:
-      - WebsiteS3Bucket
-    Properties:
-      DistributionConfig:
-        Origins:
-          - DomainName: !GetAtt WebsiteS3Bucket.DomainName
-            Id: mailing-list-hosting
-            S3OriginConfig:
-              OriginAccessIdentity: ""
-            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
-        Enabled: "true"
-        DefaultRootObject: index.html
-        DefaultCacheBehavior:
-          AllowedMethods:
-            - GET
-            - HEAD
-          Compress: true
-          TargetOriginId: mailing-list-hosting
-          ForwardedValues:
-            QueryString: "false"
-          ViewerProtocolPolicy: redirect-to-https
+ 
     
 Outputs:
   ViewGroupsApi:
