@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groups Page</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.3.min.js"
-    integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -62,47 +60,66 @@
         </tr>
     </table>
     <div id="input-container">
-        <input type="text" id="email-input" placeholder="Enter your email">
+        <input type="email" id="email-input" placeholder="Enter your email">
         <button id="add-button">Add</button>
     </div>
     <script>
-        var selectedGroupId = null;
-        var website = "https://zqikycpua2.execute-api.us-east-1.amazonaws.com"
+        let selectedGroupId = null;
+        const website = "https://zqikycpua2.execute-api.us-east-1.amazonaws.com";
+        const groupsTable = document.querySelector("#groups-table");
+        const inputContainer = document.querySelector("#input-container");
 
         // Fetch groups from the backend API
-        $.getJSON(`${website}/Prod/groups`, function(data) {
-            $.each(data, function(key, group) {
-                $("#groups-table").append(`<tr>
-                                            <td>${key + 1}</td>
-                                            <td><a href="#" class="group-link" data-id="${group.id}">${group.name}</a></td>
-                                            <td>${group.description}</td>
-                                          </tr>`);
-            });
-        });
+        fetch(`${website}/Prod/groups`)
+            .then(response => response.json())
+            .then(data => data.forEach((group, key) => addGroupToTable(group, key)));
+
+        // Function to add a group to the table
+        const addGroupToTable = (group, key) =>
+            groupsTable.innerHTML += `
+                <tr>
+                <td>${key + 1}</td>
+                <td><a href="#" class="group-link" data-id="${group.id}">${group.name}</a></td>
+                <td>${group.description}</td>
+                </tr>`;
 
         // Event listener for clicking on a group link
-        $(document).on("click", ".group-link", function(e) {
+        document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("group-link")) {
             e.preventDefault();
-            selectedGroupId = $(this).data("id");
-            $("#input-container").show();
+            selectedGroupId = e.target.dataset.id;
+            inputContainer.style.display = "block";
+        }
         });
 
         // Event listener for clicking the Add button
-        $("#add-button").click(function() {
-            var email = $("#email-input").val();
-            // Send API request with group ID and email
-            $.ajax({
-              url: `${website}/Prod/groups/${selectedGroupId}`,
-              type: "POST",
-              contentType: "application/json",
-              data: JSON.stringify({ email: email }),
-              success: function() {
-                alert("Email added successfully!");
-                $("#input-container").hide();
-                $("#email-input").val("");
-              }
-            });
+        document.querySelector("#add-button").addEventListener("click", () => {
+            const emailInput = document.querySelector("#email-input");
+            const email = emailInput.value;
+
+            if (selectedGroupId && email && emailInput.checkValidity()) {
+                fetch(`${website}/Prod/groups/${selectedGroupId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+                })
+                .then((response) => {
+                    if (response.ok) {
+                    alert("Email added successfully!");
+                    inputContainer.style.display = "none";
+                    emailInput.value = "";
+                    } else {
+                    throw new Error("Network response was not ok");
+                    }
+                })
+                .catch((error) => console.error(error));
+            } else if (!emailInput.checkValidity()) {
+                alert("Please provide a valid email address.");
+            } else {
+                alert("Please select a group and provide an email.");
+            }
         });
+
         
     </script>
 </body>
