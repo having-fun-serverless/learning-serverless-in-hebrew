@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groups Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #000;
+            background-color: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+        #input-container {
+            display: none;
+        }
+        footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            background-color: #f9f9f9; 
+            padding: 10px 0; 
+        }
+        .center-form {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .center-form label, .center-form input {
+            display: block; /* Display label and input as block elements */
+            text-align: left; /* Align text to the left */
+            width: 100%; /* Take the full width of the container */
+        }
+
+    </style>
+</head>
+<body>
+    <table id="groups-table">
+        <tr>
+            <th>#</th>
+            <th>Group</th>
+            <th>Description</th>
+        </tr>
+    </table>
+    <div id="input-container">
+        <input type="email" id="email-input" placeholder="Enter your email">
+        <button id="add-button">Add</button>
+    </div>
+    <script>
+        let selectedGroupId = null;
+        const website = "https://zqikycpua2.execute-api.us-east-1.amazonaws.com";
+        const groupsTable = document.querySelector("#groups-table");
+        const inputContainer = document.querySelector("#input-container");
+
+        // Fetch groups from the backend API
+        fetch(`${website}/Prod/groups`)
+            .then(response => response.json())
+            .then(data => data.forEach((group, key) => addGroupToTable(group, key)));
+
+        // Function to add a group to the table
+        const addGroupToTable = (group, key) =>
+            groupsTable.innerHTML += `
+                <tr>
+                <td>${key + 1}</td>
+                <td><a href="#" class="group-link" data-id="${group.id}">${group.name}</a></td>
+                <td>${group.description}</td>
+                </tr>`;
+
+        // Event listener for clicking on a group link
+        document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("group-link")) {
+            e.preventDefault();
+            selectedGroupId = e.target.dataset.id;
+            inputContainer.style.display = "block";
+        }
+        });
+
+        // Event listener for clicking the Add button
+        document.querySelector("#add-button").addEventListener("click", () => {
+            const emailInput = document.querySelector("#email-input");
+            const email = emailInput.value;
+
+            if (selectedGroupId && email && emailInput.checkValidity()) {
+                fetch(`${website}/Prod/groups/${selectedGroupId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+                })
+                .then((response) => {
+                    if (response.ok) {
+                    alert("Email added successfully!");
+                    inputContainer.style.display = "none";
+                    emailInput.value = "";
+                    } else {
+                    throw new Error("Network response was not ok");
+                    }
+                })
+                .catch((error) => console.error(error));
+            } else if (!emailInput.checkValidity()) {
+                alert("Please provide a valid email address.");
+            } else {
+                alert("Please select a group and provide an email.");
+            }
+        });
+
+        
+    </script>
+</body>
+</html>
