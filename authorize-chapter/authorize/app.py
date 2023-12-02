@@ -20,7 +20,7 @@ def lambda_handler(event, context):
             }
         }
     
-def is_valid_token(token: str):
+def is_valid_token(token: str) -> bool:
      if token and token.startswith("Basic"):
         decoded_auth = base64.b64decode(token[6:]).decode()
         username, password = decoded_auth.split(":")
