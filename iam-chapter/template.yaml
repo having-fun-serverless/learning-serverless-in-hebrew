@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  iam-base-project
+
+  Sample SAM Template for iam-base-project
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  Function1Function:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: function1/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      FunctionName: function1-iam
+  Function2Function:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: function2/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      FunctionName: function2-iam
