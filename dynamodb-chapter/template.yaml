@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  mailing-list
+
+  SAM Template for mailing-list
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  JoinGroupFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: join_group/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref GroupsSubscribersTable
+      Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups/{group-id}
+            Method: post
+  CreateGroupFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: create_group/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref GroupsSubscribersTable
+      Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups
+            Method: post
+  ViewGroupsFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: view_groups/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref GroupsSubscribersTable
+      Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups
+            Method: get
+
+  GroupsSubscribersTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: PK
+          KeyType: HASH 
+        - AttributeName: SK
+          KeyType: RANGE 
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      
+Outputs:
+  ViewGroupsApi:
+    Description: "API Gateway endpoint URL for Prod stage for ViewGroupsFunction function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/groups/"
