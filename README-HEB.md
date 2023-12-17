@@ -1,9 +1,3 @@
-<style>
-    * {
-        direction: rtl;
-    }
-</style>
-
 [English](README.md)
 
 # ללמוד Serverless בעברית
