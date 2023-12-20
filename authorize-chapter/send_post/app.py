@@ -50,7 +50,14 @@ def lambda_handler(event, context):
     object_key = f"{group_id}/{date_folder}/{random_suffix}.json"
     body = json.dumps(message_details).encode()
     bucket.put_object(Key=object_key, Body=body)
-    return {"statusCode": 200}
+    return {
+        "statusCode": 200, 
+        "headers": {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*", 
+            "Access-Control-Allow-Methods": "POST",
+        }
+    }
 
 
 def is_valid_token(token: str):
