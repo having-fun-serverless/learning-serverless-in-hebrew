@@ -1,0 +1,72 @@
+{
+        "GroupsSubscribers": [
+        {
+            "PutRequest": {
+                "Item": {
+                    "PK": {"S":"USER#guy@mail.com"},
+                    "SK": {"S":"AWS"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "PK": {"S":"USER#gili@mail.com"},
+                    "SK": {"S":"AWS"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "PK": {"S":"USER#saar@mail.com"},
+                    "SK": {"S":"tech-news"}
+                }
+            }
+        },
+         {
+            "PutRequest": {
+                "Item": {
+                    "PK": {"S":"GROUP#aws"},
+                    "SK": {"S":"USER#gili@m.io"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "PK": {"S":"GROUP#aws"},
+                    "SK": {"S":"USER#guy@m.io"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "PK": {"S":"GROUP#tech-news"},
+                    "SK": {"S":"USER#saar@m.io"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "PK": {"S":"GROUP#tech-news"},
+                    "SK": {"S":"METADATA#"},
+                     "name": {"S":"Tech news"},
+                    "description": {"S":"Daily news about technology"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "PK": {"S":"GROUP#aws"},
+                    "SK": {"S":"METADATA#"},
+                     "name": {"S":"AWS"},
+                    "description": {"S":"Everything about AWS"}
+                }
+            }
+        }
+    ]
+}
