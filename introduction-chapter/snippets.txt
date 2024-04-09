@@ -1,4 +1,4 @@
-The following code snippets are part of the introduction chapter.
+The following code snippets are part of the introduction project chapter.
 ----
 mkdir cloud-in-hebrew 
 cd cloud-in-hebrew
