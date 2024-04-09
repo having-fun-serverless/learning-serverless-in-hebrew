@@ -6,14 +6,14 @@ This README is for the "Learning Serverless in Hebrew" book, which can be acquir
 
 ## Chapters and Code
 
-- **Chapter 1 - IAM**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/iam-chapter)
-- **Chapter 2 - SQS**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/sqs-chapter)
-- **Chapter 3 - DynamoDB**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/dynamodb-chapter)
-- **Chapter 4 - API Gateway**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/apigateway-chapter)
-- **Chapter 5 - S3**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/s3-chapter)
-- **Chapter 6 - Send email**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/send-emails-chapter)
-- **Chapter 7 - Frontend application**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/web-site-chapter)
-- **Chapter 8 - Secrets**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/authorize-chapter)
+- **IAM**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/iam-chapter)
+- **SQS**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/sqs-chapter)
+- **DynamoDB**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/dynamodb-chapter)
+- **API Gateway**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/apigateway-chapter)
+- **S3**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/s3-chapter)
+- **Send email**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/send-emails-chapter)
+- **Frontend Part A**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/front-end-part-a)
+- **Frontend Part B**: [Code](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/front-end-part-b)
 
 ## Learning Approach
 

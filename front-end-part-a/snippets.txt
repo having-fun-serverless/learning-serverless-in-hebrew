@@ -1,0 +1,90 @@
+The following code snippets are part of the Front End Part A chapter.
+----
+WebsiteS3Bucket:
+    Type: AWS::S3::Bucket
+----
+CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - WebsiteS3Bucket
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt WebsiteS3Bucket.DomainName
+            Id: mailing-list-hosting
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+        Enabled: "true"
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          TargetOriginId: mailing-list-hosting
+          ForwardedValues:
+            QueryString: "false"
+          ViewerProtocolPolicy: redirect-to-https
+----
+S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteS3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "cloudfront.amazonaws.com"
+            Action: "s3:GetObject"
+            Resource: !Sub 'arn:aws:s3:::${WebsiteS3Bucket}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+    
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: mailing-list-OAC
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+----
+CloudFrontDist:
+    Value: !GetAtt CloudFrontDistribution.DomainName
+  WebsiteBucket:
+    Value: !Ref WebsiteS3Bucket
+----
+aws s3 cp index.html s3://<bucket-name>/ --cache-control 'no-cache'
+----
+return {
+        "statusCode": 200,
+        "headers": {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*", 
+            "Access-Control-Allow-Methods": "GET"
+        },
+        "body": json.dumps(groups)
+    }
+----
+curl --request POST  https://<id>.execute-api.us-east-1.amazonaws.com/Prod/groups/ -d '{"name":"Welcome group","description": "Hello group"}'
+----
+Globals:
+  ...
+  Api:
+    Cors:
+      AllowMethods: "'POST'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"
+----
+return {
+        "statusCode": 200, 
+        "headers": {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*", 
+            "Access-Control-Allow-Methods": "POST",
+        },
+        "body": json.dumps({"user": user_item, "group": group_item})
+    }

@@ -1,0 +1,7 @@
+The following code snippets are part of the IAM chapter.
+----
+aws lambda invoke --function-name function1-iam response.json
+----
+Policies:
+        - LambdaInvokePolicy:
+            FunctionName: function2-iam

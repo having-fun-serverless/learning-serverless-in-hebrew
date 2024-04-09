@@ -1,0 +1,95 @@
+The following code snippets are part of the DynamoDB chapter.
+----
+aws dynamodb batch-write-item --request-items file://GroupsSubscribers.json
+----
+GroupsSubscribersTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: PK
+          KeyType: HASH 
+        - AttributeName: SK
+          KeyType: RANGE 
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+----
+aws dynamodb batch-write-item --request-items file://GroupsSubscribers.json
+----
+import boto3
+from boto3.dynamodb.conditions import Attr
+import json
+import os
+
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table("subscribers-GroupsSubscribersTable-XZMH8QWGK79J")
+
+def lambda_handler(event, context):
+    response = table.scan(FilterExpression=Attr('SK').eq('METADATA#'))
+    return response
+----
+Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref GroupsSubscribersTable
+----
+def lambda_handler(event, context):
+    response = table.scan(FilterExpression=Attr('SK').eq('METADATA#'))
+    items = response["Items"]
+    groups = []
+    for item in items:
+        group = {
+            "id": item["PK"],
+            "name": item["name"],
+            "description": item["description"]
+        }
+        groups.append(group)
+    
+    return {
+        "statusCode": 200,
+        "body": json.dumps(groups)
+    }
+----
+Environment:
+        Variables:
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+----
+table = dynamodb.Table(os.environ["GROUPS_SUBSCRIBERS_TABLE_NAME"])
+----
+import boto3
+import json
+import os
+import re
+
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table(os.environ["GROUPS_SUBSCRIBERS_TABLE_NAME"])
+
+def lambda_handler(event, context):
+    group_details = json.loads(event["body"])
+    # Only alphabetic characters and space are allowed
+    if not re.match(r'[a-zA-Z\s]+$', group_details["name"]):
+        body = {"description": "Only alphabetic characters and space are allowed"}
+        return {"statusCode": 500, "body": json.dumps(body)}
+    group_name = group_details["name"]
+    group_id = re.sub(r'\s+', '-', group_name)
+    group_description = group_details["description"]
+
+    item = {"PK": f"GROUP#{group_id}", "SK": "METADATA#", "description": group_description, "name": group_name}
+    table.put_item(Item=item)
+
+    return {"statusCode": 200, "body": json.dumps(item)}
+----
+curl --request POST  https://<id>.execute-api.us-east-1.amazonaws.com/Prod/groups/ -d '{"name":"Welcome group","description": "Hello group"}'
+----
+Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups/{group-id}
+            Method: post
+

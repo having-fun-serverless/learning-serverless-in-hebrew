@@ -1,0 +1,61 @@
+The following code snippets are part of the API Gateway chapter.
+----
+def lambda_handler(event, context):
+   print(event)
+   return {
+       "statusCode":200,
+       "body":"<h1>Hello World</h1>"
+   }
+----
+curl --request GET <address>
+----
+curl --request POST address
+----
+def lambda_handler(event, context):
+   print(event)
+   return 5
+----
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  mailing-list
+
+  SAM Template for mailing-list
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  ViewGroupsFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: view_groups/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups
+            Method: get
+Outputs:
+  ViewGroupsApi:
+    Description: "API Gateway endpoint URL for Prod stage for ViewGroupsFunction function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/groups/"
+----
+def lambda_handler(event, context):
+    body = {"groups":["AWS", "Lambda", "API"]}
+    return {
+        "statusCode": 200,
+        "body": body
+    }
+----
+import json
+def lambda_handler(event, context):
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"groups":["AWS", "Lambda", "API"]})
+    }
+

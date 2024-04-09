@@ -1,0 +1,81 @@
+The following code snippets are part of the SQS chapter.
+----
+def lambda_handler(event, context):
+   for record in event['Records']:
+        message_body = record['body']
+        print("Received message:", message_body)
+        
+   print("Done")
+----
+import time
+
+def lambda_handler(event, context):
+    for record in event['Records']:
+        message_body = record['body']
+        print("Received message:", message_body)
+    time.sleep(20)
+    print("Done")
+----
+def lambda_handler(event, context):
+    for record in event['Records']:
+        message_body = record['body']
+        print("Received message:", message_body)
+    
+    raise Exception("Error")
+----
+SendMessagesQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DLQ.Arn
+        maxReceiveCount: 5
+DLQ:
+    Type: AWS::SQS::Queue
+----
+SendEmailtFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: send_email/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt SendMessagesQueue.Arn
+            BatchSize: 5
+----
+SQSQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    DependsOn: SendMessagesQueue
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt SendMessagesQueue.Arn
+      Queues:
+        - !Ref SendMessagesQueue
+----
+Messages:
+    Type: AWS::S3::Bucket
+    Properties:
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Queue: !GetAtt SendMessagesQueue.Arn
+----
+import json
+
+def lambda_handler(event, context):
+    for record in event['Records']:
+        message_body = json.loads(record['body'])
+        s3_event = message_body['Records'][0]['s3']
+
+        bucket_name = s3_event['bucket']['name']
+        object_key = s3_event['object']['key']
+
+        print(f"Bucket Name: {bucket_name}")
+        print(f"Object Key: {object_key}")

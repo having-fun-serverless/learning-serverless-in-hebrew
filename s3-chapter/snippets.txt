@@ -1,0 +1,79 @@
+The following code snippets are part of the S3 chapter.
+----
+echo "hello" > hello.txt
+----
+aws s3 cp hello.txt s3://efi.mk-test/newprefix/hello.txt
+----
+S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: Messages    
+----
+Messages:
+    Type: AWS::S3::Bucket
+----
+SendPostFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: send_post/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          MESSAGES_BUCKET: !Ref Messages
+          GROUPS_SUBSCRIBERS_TABLE_NAME: !Ref GroupsSubscribersTable
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref Messages
+        - DynamoDBReadPolicy:
+            TableName: !Ref GroupsSubscribersTable
+      Events:
+        MailingList:
+          Type: Api
+          Properties:
+            Path: /groups/{group-id}/post
+            Method: post
+----
+import boto3
+import json
+import os
+import re
+from boto3.dynamodb.conditions import Key
+from datetime import datetime
+import random
+import string
+
+s3 = boto3.resource("s3")
+bucket = s3.Bucket(os.environ["MESSAGES_BUCKET"])
+
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table(os.environ["GROUPS_SUBSCRIBERS_TABLE_NAME"])
+
+def lambda_handler(event, context):
+    group_id = event["pathParameters"]["group-id"]
+    message_details = json.loads(event["body"])
+    # Check that group exists
+    group_pk = f"GROUP#{group_id}"
+    group_sk = "METADATA#"
+    response = table.query(KeyConditionExpression=(Key('PK').eq(group_pk) & Key('SK').begins_with(group_sk)))
+    if len(response["Items"]) == 0:
+        # Group does not exist
+        err_message = f"Group {group_id} not found"
+        return {"statusCode": 404, "body": json.dumps({"error": err_message})}
+    
+    now = datetime.now()
+    date_folder = now.strftime("%Y/%m/%d")
+    message_details["group_id"] = group_id
+    random_suffix = '.'.join(random.choices(string.ascii_uppercase, k=10))
+    
+    object_key = f"{group_id}/{date_folder}/{random_suffix}.json"
+    body = json.dumps(message_details).encode()
+    bucket.put_object(Key=object_key, Body=body)
+    
+    return {"statusCode": 200}
+----
+curl --request POST  https://<id>.execute-api.us-east-1.amazonaws.com/Prod/groups -d '{"name":"Mama mia","description": "Hello group"}'
+----
+curl --request POST  https://<id>.execute-api.us-east-1.amazonaws.com/Prod/groups/Mama-mia/post -d '{"post":"Hello"}'
+
+

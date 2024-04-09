@@ -6,13 +6,13 @@
 
 ## פרקים
 
-- **פרק 1 - IAM**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/iam-chapter)
-- **פרק 2 - SQS**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/sqs-chapter)
-- **פרק 3 - DynamoDB**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/dynamodb-chapter)
-- **פרק 4 - API Gateway**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/apigateway-chapter)
-- **פרק 5 - S3**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/s3-chapter)
-- **פרק 6 - שליחת דואר אלקטרוני**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/send-emails-chapter)
-- **פרק 7 - אפליקציה חזיתית**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/web-site-chapter)
-- **פרק 8 - סודות**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/authorize-chapter)
+- **IAM**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/iam-chapter)
+- **SQS**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/sqs-chapter)
+- **DynamoDB**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/dynamodb-chapter)
+- **API Gateway**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/apigateway-chapter)
+- **S3**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/s3-chapter)
+- **שליחת דואר אלקטרוני**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/send-emails-chapter)
+- **Frontend Part A**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/front-end-part-a)
+- **Frontend Part B**: [קוד](https://github.com/aws-hebrew-book/learning-serverless-in-hebrew/tree/main/front-end-part-b)
 
 
